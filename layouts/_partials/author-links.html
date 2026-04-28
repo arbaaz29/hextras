@@ -1,0 +1,16 @@
+{{ with .Site.Params.Author.links }}
+  <div class="hx:flex hx:flex-wrap hx:gap-3 hx:mt-1 hx:text-neutral-400 hx:dark:text-neutral-500">
+    {{ range $links := . }}
+      {{ range $name, $url := $links }}
+        <a
+          class="hx:hover:text-primary-700 hx:dark:hover:text-primary-400"
+          href="{{ $url | safeURL }}"
+          target="_blank"
+          aria-label="{{ $name | title }}"
+          rel="me noopener noreferrer"
+          ><span class="hx:inline-block hx:align-text-bottom">{{ partial "utils/icon.html" (dict "name" $name "attributes" "height=1.2em") }}</span></a
+        >
+      {{ end }}
+    {{ end }}
+  </div>
+{{ end }}

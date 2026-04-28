@@ -1,0 +1,59 @@
+{{ $id := delimit (slice "codeberg" (partial "functions/uid.html" .)) "-" }}
+{{- $codebergURL := print "https://codeberg.org/api/v1/repos/" (.Get "repo") -}}
+{{- $codebergData := resources.GetRemote $codebergURL | transform.Unmarshal -}}
+{{- with $codebergData -}}
+  <div class="codeberg-card-wrapper">
+    <a id="{{ $id }}" target="_blank" href="{{ .html_url }}" class="hx:cursor-pointer">
+      <div
+        class="hx:w-full hx:md:w-auto hx:pt-3 hx:p-5 hx:border hx:border-neutral-200 hx:dark:border-neutral-700 hx:border hx:rounded-md hx:shadow-2xl">
+        <div class="hx:flex hx:items-center">
+          <span class="hx:text-2xl hx:text-neutral-800 hx:dark:text-neutral hx:mr-[10px]">
+            {{ partial "icon.html" "codeberg" }}
+          </span>
+          <div
+            id="{{ $id }}-full_name"
+            class="hx:m-0 hx:font-bold hx:text-xl hx:text-neutral-800 decoration-primary-500 hx:hover:underline hx:hover:underline-offset-2 hx:dark:text-neutral">
+            {{ .full_name | markdownify }}
+          </div>
+        </div>
+
+        <p id="{{ $id }}-description" class="hx:m-0 hx:mt-2 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+          {{ .description | markdownify }}
+        </p>
+
+        <div class="hx:m-0 hx:mt-2 hx:flex hx:items-center">
+          {{ $language := .language | default "fallback" }}
+          {{ $className := printf "background-color-%s" (md5 $language) }}
+          <span
+            class="hx:mr-1 hx:inline-block hx:h-3 hx:w-3 hx:rounded-full {{ $className }}"></span>
+          <div class="hx:m-0 hx:mr-5 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+            {{ if .language }}{{ .language }}{{ else }}null{{ end }}
+          </div>
+
+          <span class="hx:text-md hx:mr-1 hx:text-neutral-800 hx:dark:text-neutral">
+            {{ partial "icon.html" "star" }}
+          </span>
+          <div id="{{ $id }}-stars_count" class="hx:m-0 hx:mr-5 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+            {{ .stars_count }}
+          </div>
+
+          <span class="hx:text-md hx:mr-1 hx:text-neutral-800 hx:dark:text-neutral">
+            {{ partial "icon.html" "fork" }}
+          </span>
+          <div id="{{ $id }}-forks_count" class="hx:m-0 hx:mr-5 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+            {{ .forks_count }}
+          </div>
+        </div>
+      </div>
+      {{ $fetchRepo := resources.Get "js/fetch-repo.js" }}
+      {{ $fetchRepo = $fetchRepo | resources.Minify | resources.Fingerprint ($.Site.Params.fingerprintAlgorithm | default "sha512") }}
+      <script
+        async
+        type="text/javascript"
+        src="{{ $fetchRepo.RelPermalink }}"
+        integrity="{{ $fetchRepo.Data.Integrity }}"
+        data-repo-url="{{ $codebergURL }}"
+        data-repo-id="{{ $id }}"></script>
+    </a>
+  </div>
+{{- end -}}

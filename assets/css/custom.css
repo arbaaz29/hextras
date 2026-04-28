@@ -1,0 +1,22 @@
+/* Increase the default font size */
+html {
+  font-size: 18pt;
+}
+/* Hide site title on mobile, show on desktop */
+.site-title-link {
+  display: inline-block; /* visible by default */
+  font-size: 20px;         /* desktop / default size */
+  font-weight: bold;       /* optional styling */
+  text-decoration: none;   /* remove underline if it’s a link */
+  color: inherit; 
+  transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+.site-title-link:hover {
+  color: #5c7fd8;  /* or your brand color */
+}
+@media (max-width: 767px) {
+  .site-title-link {
+    display: none !important; /* hide on small screens */
+  }
+}
+

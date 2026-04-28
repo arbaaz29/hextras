@@ -1,0 +1,41 @@
+{{ $icon := .Get "icon" | default "check" }}
+{{ $header := .Get "header" }}
+{{ $badge := .Get "badge" }}
+{{ $subheader := .Get "subheader" }}
+{{ $date := .Get "date" | default "" }}
+
+<li class="hx:relative hx:pl-10 hx:mb-10">
+  <!-- Date positioned on the left of vertical line -->
+  {{ if $date }}
+    <div class="timeline-date">{{ $date }}</div>
+  {{ end }}
+  <div class="hx:p-6 hx:rounded-lg hx:shadow-2xl hx:bg-surface-100 hx:dark:bg-surface-800">
+    <div class="hx:flex hx:items-start hx:justify-between hx:flex-wrap hx:gap-4 hx:mb-1">
+      {{ if $header }}
+        <h2 class="hx:text-xl hx:font-bold hx:m-0">{{ $header }}</h2>
+      {{ end }}
+      {{ if $icon }}
+        <span class="hx:inline-block hx:align-middle">
+          {{ partial "icon" $icon }}
+        </span>
+      {{ end }}
+    </div>
+    {{ if or $subheader $badge }}
+      <div class="hx:flex hx:items-center hx:justify-between hx:flex-wrap hx:gap-4 hx:mt-1">
+        {{ if $subheader }}
+          <h4 class="hx:text-md hx:font-medium hx:text-neutral-600 hx:dark:text-neutral-300 hx:m-0">
+            {{ $subheader }}
+          </h4>
+        {{ end }}
+        {{ if $badge }}
+          <span class="hx:inline-block hx:align-middle">
+            {{ partial "badge" $badge }}
+          </span>
+        {{ end }}
+      </div>
+    {{ end }}
+    <div class="hx:mt-4 hx:text-neutral-700 hx:dark:text-neutral-200">
+      {{ .Inner }}
+    </div>
+  </div>
+</li>

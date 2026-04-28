@@ -1,0 +1,177 @@
+# exampleSite — demonstrates how a downstream user consumes Hextra_Arbaaz.
+#
+# Build (from this directory):
+#
+#   hugo server                  # uses themes/Hextra_Arbaaz (junction → repo root)
+#
+# Site-level concerns live here. Theme-level defaults (markup, outputFormats)
+# live in the theme's own hugo.toml at the repo root.
+
+baseURL                = "https://example.com/"
+languageCode           = "en-us"
+title                  = "Hextra_Arbaaz Example"
+defaultContentLanguage = "en"
+
+# Single-theme install: Hextra_Arbaaz already bundles Hextra. No second theme
+# entry, no Hugo Modules, no extra clones — drop the theme into themes/ and go.
+theme = "Hextra_Arbaaz"
+
+enableEmoji      = true
+enableRobotsTXT  = true
+enableGitInfo    = false
+buildDrafts      = false
+buildFuture      = false
+
+[pagination]
+  pagerSize = 100
+
+[imaging]
+  anchor = "Center"
+
+[taxonomies]
+  tag      = "tags"
+  category = "categories"
+  author   = "authors"
+  series   = "series"
+
+[sitemap]
+  changefreq = "daily"
+  filename   = "sitemap.xml"
+  priority   = 0.5
+
+[outputs]
+  home    = ["HTML", "RSS"]
+  page    = ["HTML"]
+  section = ["HTML", "RSS"]
+
+[outputFormats.RSS]
+  mediatype = "application/rss+xml"
+  baseName  = "rss"
+
+# ----- Menu (demonstrates Hextra's submenu + icon support) -----
+[menu]
+  [[menu.main]]
+    identifier = "writeups"
+    name       = "Writeups"
+    weight     = 1
+    [menu.main.params]
+      type = "link"
+      icon = "collection"
+  [[menu.main]]
+    identifier = "htb"
+    name       = "HTB ↗"
+    url        = "https://writeups.arbaazjamadar.com/htb/"
+    parent     = "writeups"
+    weight     = 1
+  [[menu.main]]
+    identifier = "wiz"
+    name       = "Wiz ↗"
+    url        = "https://writeups.arbaazjamadar.com/wiz/"
+    parent     = "writeups"
+    weight     = 2
+
+  [[menu.main]]
+    identifier = "projects"
+    name       = "Projects"
+    weight     = 2
+    [menu.main.params]
+      type = "link"
+      icon = "collection"
+  [[menu.main]]
+    identifier = "secure-iac"
+    name       = "Secure IaC ↗"
+    url        = "https://projects.arbaazjamadar.com/e-com-aws/"
+    parent     = "projects"
+    weight     = 1
+
+  [[menu.main]]
+    identifier = "certifications"
+    name       = "Certifications"
+    weight     = 3
+    [menu.main.params]
+      type = "link"
+      icon = "collection"
+  [[menu.main]]
+    identifier = "oscp"
+    name       = "OSCP ↗"
+    url        = "https://certifications.arbaazjamadar.com/offsec/"
+    parent     = "certifications"
+    weight     = 1
+
+  [[menu.main]]
+    name   = "Search"
+    weight = 6
+    [menu.main.params]
+      type = "search"
+
+  [[menu.main]]
+    name   = "GitHub"
+    url    = "https://github.com/arbaaz29"
+    weight = 7
+    [menu.main.params]
+      icon = "github"
+
+# ----- Theme params (demonstrates the author block + theme behaviour) -----
+[params]
+  description = "Example site for the Hextra_Arbaaz theme."
+  copyright   = "© 2025 Hextra_Arbaaz"
+  dateFormat  = "02 January 2006"
+
+  defaultAppearance        = "dark"          # light | dark
+  autoSwitchAppearance     = false
+  enableSearch             = true
+  enableCodeCopy           = true
+  disableImageOptimization = true
+  defaultBackgroundImage   = "featured.gif"
+  defaultFeaturedImage     = "featured.gif"
+  defaultSocialImage       = "social/default-social.png"
+
+  # The theme's author-block partial reads from this block.
+  [params.author]
+    name     = "Arbaaz Jamadar"
+    email    = "reachout@arbaazjamadar.com"
+    image    = "images/profile.png"
+    headline = "Cloud Security Engineer | OSCP | AWS Security Specialty | CySA+"
+    bio      = ""
+    links = [
+      { mail     = "mailto:reachout@arbaazjamadar.com" },
+      { github   = "https://github.com/arbaaz29" },
+      { linkedin = "https://linkedin.com/in/arbaazz" },
+    ]
+
+  # Author-block injection toggles (read by the theme's layout overrides).
+  [params.article]
+    showAuthor          = true
+    showAuthorBottom    = false
+    showDate            = true
+    showReadingTime     = true
+    showBreadcrumbs     = true
+    showHeadingAnchors  = true
+
+  [params.homepage]
+    showAuthor = true
+
+  [params.navbar]
+    displayTitle = true
+    displayLogo  = true
+    [params.navbar.logo]
+      path   = "images/strawhat.png"
+      dark   = "images/strawhat.png"
+      width  = 32
+      height = 32
+      link   = "/"
+
+  [params.theme]
+    default       = "dark"
+    displayToggle = true
+
+  [params.footer]
+    enable           = true
+    displayCopyright = true
+    displayPoweredBy = true
+
+  [params.search]
+    enable = true
+    type   = "flexsearch"
+    [params.search.flexsearch]
+      index = "content"

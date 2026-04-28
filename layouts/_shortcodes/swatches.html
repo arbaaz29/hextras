@@ -1,0 +1,11 @@
+<div class="hx:flex hx:justify-between">
+  <span
+    class="hx:w-full hx:py-6 hx:mr-3 hx:rounded-md"
+    {{ with .Get 0 }}style="background-color: {{ . }}"{{ end }}></span>
+  <span
+    class="hx:w-full hx:py-6 hx:mr-3 hx:rounded-md"
+    {{ with .Get 1 }}style="background-color: {{ . }}"{{ end }}></span>
+  <span
+    class="hx:w-full hx:py-6 hx:mr-3 hx:rounded-md"
+    {{ with .Get 2 }}style="background-color: {{ . }}"{{ end }}></span>
+</div>

@@ -1,0 +1,29 @@
+# Hextra_Arbaaz — a personalised Hextra child theme.
+#
+# Layered on top of Hextra (https://github.com/imfing/hextra) it adds:
+#   - 34 Blowfish shortcodes ported to Hextra's hx: Tailwind prefix
+#   - a Blowfish-style author block injected into single / list / blog / docs / home layouts
+#   - the Blowfish SVG icon set merged with Hextra's
+#   - personal assets (profile image, favicons, social images, custom CSS)
+#
+# Hugo theme metadata reference: https://github.com/gohugoio/hugoThemes#themetoml
+
+name        = "Hextra_Arbaaz"
+license     = "MIT"
+licenselink = "https://github.com/arbaaz29/Hextra_Arbaaz/blob/main/LICENSE"
+description = "Personalised Hextra child theme with Blowfish shortcodes, an author block, and a curated icon set. Plug-and-go: drop in, set theme = \"Hextra_Arbaaz\", build."
+homepage    = "https://github.com/arbaaz29/Hextra_Arbaaz"
+demosite    = "https://arbaazjamadar.com/"
+tags        = ["Modern", "Documentation", "Blog", "Responsive", "Dark", "Personal", "Cybersecurity"]
+features    = ["Author block", "Blowfish shortcodes", "Icon set", "Search", "Dark mode", "Responsive", "RSS"]
+min_version = "0.146.0"
+
+[author]
+  name     = "Arbaaz Jamadar"
+  homepage = "https://arbaazjamadar.com"
+
+[original]
+  name      = "Hextra"
+  homepage  = "https://github.com/imfing/hextra"
+  repo      = "https://github.com/imfing/hextra"
+  author    = "Xin"

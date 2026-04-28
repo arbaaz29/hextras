@@ -1,0 +1,72 @@
+# Hextra_Arbaaz theme-level config.
+#
+# This file declares the markup / output-format / Hugo-version defaults that
+# the theme expects so shortcodes (mermaid, katex, alert, etc.) render out of
+# the box. Site-level concerns (baseURL, title, menus, [params.author],
+# language) live in the *site*'s hugo.toml. See exampleSite/hugo.toml for a
+# working example.
+#
+# Plug-and-go install paths (pick one — both are documented in README.md):
+#
+#   A. Vendored (no Go required):
+#        themes/Hextra_Arbaaz/   <- this repo
+#        themes/hextra/          <- imfing/hextra
+#        # in site hugo.toml:
+#        theme = ["Hextra_Arbaaz", "hextra"]
+#
+#   B. Hugo Modules (recommended for shared/CI builds):
+#        # in site hugo.toml:
+#        theme = "Hextra_Arbaaz"
+#        [module]
+#          [[module.imports]]
+#            path = "github.com/arbaaz29/Hextra_Arbaaz"
+#          [[module.imports]]
+#            path = "github.com/imfing/hextra"
+#
+# We deliberately do NOT declare the Hextra import inside this theme's
+# [module] block — that would force every consumer to initialise Hugo
+# Modules (run `hugo mod init`) even if they only want a vendored install.
+# Consumers using Modules add the import in their own site config.
+
+[module]
+  [module.hugoVersion]
+    min      = '0.146.0'
+    extended = true
+
+# Output formats Hextra ships (kept here so the theme is self-contained even
+# when the parent Hextra theme is vendored manually rather than via modules).
+[outputFormats]
+  [outputFormats.llms]
+    name        = 'llms'
+    baseName    = 'llms'
+    mediaType   = 'text/plain'
+    isPlainText = true
+  [outputFormats.markdown]
+    name        = 'markdown'
+    baseName    = 'index'
+    mediaType   = 'text/markdown'
+    isPlainText = true
+    ugly        = true
+
+# Markup defaults required by the imported Blowfish shortcodes (alert, katex,
+# mermaid, codeimporter, etc.). A downstream site can still override any of
+# these in its own hugo.toml.
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.goldmark.extensions.passthrough]
+    enable = true
+    [markup.goldmark.extensions.passthrough.delimiters]
+      block  = [['\[', '\]'], ['$$', '$$']]
+      inline = [['\(', '\)']]
+  [markup.highlight]
+    noClasses   = false
+    style       = "github-dark"
+    lineNos     = false
+    codeFences  = true
+    guessSyntax = true
+    tabWidth    = 2
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel   = 4
+    ordered    = false

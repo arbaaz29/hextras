@@ -1,0 +1,65 @@
+{{/*
+  Blowfish-style author block adapted for Hextra (hx: Tailwind prefix).
+  Compact, transparent layout — image left, byline + name + headline + socials right.
+  Source of truth (priority): page front matter > site params (params.author).
+*/}}
+{{ $disableImageOptimization := .Site.Params.disableImageOptimization | default false }}
+{{ $author := .Site.Params.Author }}
+{{ $headline := .Params.authorHeadline | default $author.headline }}
+{{ $name := $author.name }}
+{{ $image := $author.image }}
+{{ $bio := $author.bio }}
+{{ $links := $author.links }}
+
+{{ if $name }}
+<div class="hx:my-6 hx:flex hx:items-center hx:gap-4">
+  {{ with $image }}
+    {{ $authorImage := "" }}
+    {{ if or (strings.HasPrefix . "http:") (strings.HasPrefix . "https:") }}
+      {{ $authorImage = resources.GetRemote . }}
+    {{ else }}
+      {{ $authorImage = resources.Get . }}
+    {{ end }}
+    {{ if $authorImage }}
+      {{ if not $disableImageOptimization }}
+        {{ $authorImage = $authorImage.Fill "192x192" }}
+      {{ end }}
+      <img
+        class="hx:!my-0 hx:h-16 hx:w-16 hx:shrink-0 hx:rounded-full hx:object-cover"
+        alt="{{ $name | default "Author" }}"
+        src="{{ $authorImage.RelPermalink }}" />
+    {{ end }}
+  {{ end }}
+  <div class="hx:flex hx:flex-col hx:gap-0.5 hx:min-w-0">
+    {{ with $name | markdownify }}
+      <div class="hx:text-[0.65rem] hx:uppercase hx:tracking-wider hx:leading-none hx:text-neutral-500 hx:dark:text-neutral-400">
+        {{ i18n "author.byline_title" | default "Author" | markdownify }}
+      </div>
+      <div class="hx:text-base hx:font-semibold hx:leading-tight hx:text-neutral-800 hx:dark:text-neutral-100">
+        {{ . }}
+      </div>
+    {{ end }}
+    {{ with $headline }}
+      <div class="hx:text-sm hx:leading-snug hx:text-neutral-600 hx:dark:text-neutral-400">{{ . | markdownify }}</div>
+    {{ end }}
+    {{ with $bio | markdownify }}
+      <div class="hx:text-sm hx:text-neutral-700 hx:dark:text-neutral-400">{{ . }}</div>
+    {{ end }}
+    {{ with $links }}
+      <div class="hx:flex hx:flex-wrap hx:items-center hx:gap-2 hx:mt-1 hx:text-base hx:text-neutral-500 hx:dark:text-neutral-400">
+        {{ range $entry := . }}
+          {{ range $iconName, $url := $entry }}
+            <a
+              class="hx:inline-flex hx:items-center hx:hover:text-primary-600 hx:dark:hover:text-primary-400"
+              href="{{ $url | safeURL }}"
+              target="_blank"
+              aria-label="{{ $iconName | title }}"
+              rel="me noopener noreferrer"
+            >{{ partial "utils/icon.html" (dict "name" $iconName "attributes" "height=1em width=1em") }}</a>
+          {{ end }}
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,52 @@
+{{ $id := delimit (slice "gitlab" (partial "functions/uid.html" .)) "-" }}
+{{- $gitlabURL := print (default "https://gitlab.com/" (.Get "baseURL")) "api/v4/projects/" (.Get "projectID") -}}
+
+{{- $gitLabData := resources.GetRemote $gitlabURL | transform.Unmarshal -}}
+{{- with $gitLabData -}}
+  <div class="gitlab-card-wrapper">
+    <a id="{{ $id }}" target="_blank" href="{{ .web_url }}" class="hx:cursor-pointer">
+      <div
+        class="hx:w-full hx:md:w-auto hx:pt-3 hx:p-5 hx:border hx:border-neutral-200 hx:dark:border-neutral-700 hx:border hx:rounded-md hx:shadow-2xl">
+        <div class="hx:flex hx:items-center">
+          <span class="hx:text-2xl hx:text-neutral-800 hx:dark:text-neutral hx:mr-[10px]">
+            {{ partial "icon.html" "gitlab" }}
+          </span>
+          <div
+            id="{{ $id }}-name_with_namespace"
+            class="hx:m-0 hx:font-bold hx:text-xl hx:text-neutral-800 decoration-primary-500 hx:hover:underline hx:hover:underline-offset-2 hx:dark:text-neutral">
+            {{ .name_with_namespace | markdownify }}
+          </div>
+        </div>
+
+        <p id="{{ $id }}-description" class="hx:m-0 hx:mt-2 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+          {{ .description | markdownify }}
+        </p>
+
+        <div class="hx:m-0 hx:mt-2 hx:flex hx:items-center">
+          <span class="hx:text-md hx:mr-1 hx:text-neutral-800 hx:dark:text-neutral">
+            {{ partial "icon.html" "star" }}
+          </span>
+          <div id="{{ $id }}-star_count" class="hx:m-0 hx:mr-5 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+            {{ .star_count }}
+          </div>
+
+          <span class="hx:text-md hx:mr-1 hx:text-neutral-800 hx:dark:text-neutral">
+            {{ partial "icon.html" "fork" }}
+          </span>
+          <div id="{{ $id }}-forks_count" class="hx:m-0 hx:mr-5 hx:text-md hx:text-neutral-800 hx:dark:text-neutral">
+            {{ .forks_count }}
+          </div>
+        </div>
+      </div>
+      {{ $fetchRepo := resources.Get "js/fetch-repo.js" }}
+      {{ $fetchRepo = $fetchRepo | resources.Minify | resources.Fingerprint ($.Site.Params.fingerprintAlgorithm | default "sha512") }}
+      <script
+        async
+        type="text/javascript"
+        src="{{ $fetchRepo.RelPermalink }}"
+        integrity="{{ $fetchRepo.Data.Integrity }}"
+        data-repo-url="{{ $gitlabURL }}"
+        data-repo-id="{{ $id }}"></script>
+    </a>
+  </div>
+{{- end -}}

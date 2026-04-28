@@ -1,0 +1,83 @@
+{{ $disableImageOptimization := .Page.Site.Params.disableImageOptimization | default false }}
+{{ with .Params.externalUrl }}
+<a href="{{ . }}" target="_blank" rel="external" class="hx:min-w-full">
+  {{ else }}
+  <a href="{{ .RelPermalink }}" class="hx:min-w-full">
+    {{ end }}
+    <div class="hx:min-h-full hx:border hx:border-neutral-200 hx:dark:border-neutral-700 hx:border-2 hx:rounded hx:overflow-hidden hx:shadow-2xl hx:relative">
+
+      {{- with $.Params.images -}}
+      {{- range first 6 . }}
+      <meta property="og:image" content="{{ . | absURL }}" />{{ end -}}
+      {{- else -}}
+      {{- $images := $.Resources.ByType "image" -}}
+      {{- $featured := $images.GetMatch "*feature*" -}}
+      {{- if not $featured }}{{ $featured = $images.GetMatch "{*cover*,*thumbnail*}" }}{{ end -}}
+      
+      {{ if .Params.cardImage }}
+        {{- $cardImagePath := .Params.cardImage -}}
+        {{ $featured = resources.Get $cardImagePath }}
+      {{ else if and .Params.featureimage (not $featured) }}
+        {{- $url:= .Params.featureimage -}}
+        {{ $featured = resources.GetRemote $url }}
+      {{ end }}
+      
+      {{- if not $featured }}{{ with .Site.Params.defaultFeaturedImage }}{{ $featured = resources.Get . }}{{ end }}{{ end -}}
+      {{ if .Params.hideFeatureImage }}{{ $featured = false }}{{ end }}
+      {{- with $featured -}}
+      {{ if or $disableImageOptimization (strings.HasSuffix $featured ".svg")}}
+        {{ with . }}
+        <div class="hx:w-full thumbnail_card nozoom" style="background-image:url({{ .RelPermalink }});"></div>
+        {{ end }}
+      {{ else }}
+        {{ with .Resize "600x" }}
+        <div class="hx:w-full thumbnail_card nozoom" style="background-image:url({{ .RelPermalink }});"></div>
+        {{ end }}
+      {{ end }}
+      {{- else -}}
+      {{- with $.Site.Params.images }}
+      <meta property="og:image" content="{{ index . 0 | absURL }}" />{{ end -}}
+      {{- end -}}
+      {{- end -}}
+
+    {{ if and .Draft .Site.Params.article.showDraftLabel }}
+      <span class="hx:absolute hx:top-0 hx:right-0 hx:m-2">
+        {{ partial "badge.html" (i18n "article.draft" | emojify) }}
+      </span>
+    {{ end }}
+
+
+    <div class="hx:px-6 hx:py-4">
+      {{ with .Params.externalUrl }}
+        <div>
+          <div
+            class="hx:font-bold hx:text-xl hx:text-neutral-800 decoration-primary-500 hx:hover:underline hx:hover:underline-offset-2 hx:dark:text-neutral">
+            {{ $.Title | emojify }}
+            <span class="hx:text-xs hx:align-top hx:cursor-default hx:text-neutral-400 hx:dark:text-neutral-500">
+              <span class="hx:rtl:hidden">&#8599;</span>
+              <span class="hx:ltr:hidden">&#8598;</span>
+            </span>
+          </div>
+        </div>
+      {{ else }}
+        <div
+          class="hx:font-bold hx:text-xl hx:text-neutral-800 decoration-primary-500 hx:hover:underline hx:hover:underline-offset-2 hx:dark:text-neutral"
+          href="{{ .RelPermalink }}">
+          {{ .Title | emojify }}
+        </div>
+      {{ end }}
+
+
+      <div class="hx:text-sm hx:text-neutral-500 hx:dark:text-neutral-400">
+        {{ partial "article-meta/basic.html" . }}
+      </div>
+
+      {{ if .Params.showSummary | default (.Site.Params.list.showSummary | default false) }}
+        <div class="hx:py-1 prose dark:prose-invert">
+          {{ .Summary | plainify }}
+        </div>
+      {{ end }}
+    </div>
+    <div class="hx:px-6 hx:pt-4 hx:pb-2"></div>
+  </div>
+</a>

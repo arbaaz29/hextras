@@ -1,0 +1,15 @@
+{{/*
+  Blowfish-compatible icon partial. Resolves the icon via Hextra's unified
+  data-driven icon system (theme data/icons.yaml + project data/icons.yaml).
+  Adds default 1em sizing so inline icons render visibly next to text without
+  the caller having to set a size.
+
+  Called as:  {{ partial "icon.html" "chevron-down" }}
+*/}}
+{{- $name := . -}}
+{{- $siteData := partial "utils/hugo-compat/site-data.html" . -}}
+{{- $svg := index $siteData.icons $name -}}
+{{- if $svg -}}
+  {{- $svg = replaceRE `<svg(\s|>)` `<svg height="1em" width="1em"$1` $svg -}}
+  <span class="hx:inline-block hx:align-text-bottom icon">{{ $svg | safeHTML }}</span>
+{{- end -}}

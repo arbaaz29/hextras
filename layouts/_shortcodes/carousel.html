@@ -1,0 +1,101 @@
+{{ $id := delimit (slice "carousel" (partial "functions/uid.html" .)) "-" }}
+{{ $aspect := default "16-9" (.Get "aspectRatio") }}
+{{ $interval := default "2000" (.Get "interval") }}
+
+{{ $page := .Page.Resources }}
+{{ $imagesTemp := .Get "images" }}
+{{ $imagesTemp = strings.TrimPrefix "{" $imagesTemp }}
+{{ $imagesTemp = strings.TrimSuffix "}" $imagesTemp }}
+{{ $imagesTemp := strings.Split $imagesTemp "," }}
+{{ $images := slice }}
+{{ range $imagesTemp }}
+  {{ if or (strings.HasPrefix . "http:") (strings.HasPrefix . "https:") }}
+    {{ $images = $images | append (resources.GetRemote .) }}
+  {{ else }}
+    {{ $images = $images | append ($page.Match .) }}
+  {{ end }}
+{{ end }}
+
+
+<div id="{{ $id }}" class="hx:relative" data-twe-carousel-init data-twe-ride="carousel">
+  <div
+    class="hx:absolute hx:right-0 hx:bottom-0 hx:left-0 hx:z-2 hx:mx-[15%] hx:mb-10 hx:flex list-none hx:justify-center hx:p-0"
+    data-twe-carousel-indicators>
+    {{ $num := 0 }}
+    {{ range $images }}
+      <button
+        type="button"
+        data-twe-target="#{{ $id }}"
+        data-twe-slide-to="{{ $num }}"
+        {{ if eq $num 0 }}data-twe-carousel-active aria-current="true"{{ end }}
+        class="hx:mx-[3px] box-content hx:h-[3px] hx:w-[30px] hx:flex-initial hx:cursor-pointer hx:border-0 hx:border-y-[10px] hx:border-solid hx:border-transparent hx:bg-neutral hx:bg-clip-padding hx:p-0 -indent-[999px] hx:opacity-50 hx:transition-opacity hx:duration-[600ms] hx:ease-[cubic-bezier(0.25,0.1,0.25,1.0)] hx:motion-reduce:transition-none"
+        aria-label="Slide {{ $num }}"></button>
+
+      {{ $num = add $num 1 }}
+    {{ end }}
+
+  </div>
+  <div class="hx:relative hx:w-full hx:overflow-hidden hx:after:clear-both hx:after:block after:content-['']">
+    {{ $num := 0 }}
+    {{ range $images }}
+      <div
+        class="hx:relative hx:float-left -mr-[100%] {{ if not (eq $num 0) }}
+          hx:hidden
+        {{ end }} hx:w-full hx:transition-transform duration-[{{ $interval }}ms] hx:ease-in-out hx:motion-reduce:transition-none"
+        data-twe-carousel-item
+        {{ if eq $num 0 }}data-twe-carousel-active{{ end }}>
+        <div class="ratio-{{ $aspect }} single_hero_background">
+          <img
+            src="{{ .RelPermalink }}"
+            class="hx:block hx:absolute hx:top-0 hx:object-cover hx:w-full hx:h-full nozoom"
+            alt="carousel image {{ $num }}">
+        </div>
+      </div>
+
+      {{ $num = add $num 1 }}
+    {{ end }}
+
+  </div>
+  <button
+    class="hx:absolute hx:top-0 hx:bottom-0 hx:left-0 hx:z-2 hx:flex hx:w-[15%] hx:items-center hx:justify-center hx:border-0 hx:bg-none hx:p-0 hx:text-center hx:text-white hx:opacity-50 hx:transition-opacity hx:duration-150 hx:ease-[cubic-bezier(0.25,0.1,0.25,1.0)] hx:hover:text-white hx:hover:no-underline hx:hover:opacity-90 hx:hover:outline-none hx:focus:text-white hx:focus:no-underline hx:focus:opacity-90 hx:focus:outline-none hx:motion-reduce:transition-none"
+    type="button"
+    data-twe-target="#{{ $id }}"
+    data-twe-slide="prev">
+    <span class="hx:inline-block hx:h-8 hx:w-8">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="4.5"
+        stroke="currentColor"
+        class="hx:h-6 hx:w-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+      </svg>
+    </span>
+    <span
+      class="hx:!absolute !-m-px hx:!h-px hx:!w-px hx:!overflow-hidden hx:!whitespace-nowrap hx:!border-0 hx:!p-0 ![clip:rect(0,0,0,0)]"
+      >Previous</span
+    >
+  </button>
+  <button
+    class="hx:absolute hx:top-0 hx:bottom-0 hx:right-0 hx:z-[1] hx:flex hx:w-[15%] hx:items-center hx:justify-center hx:border-0 hx:bg-none hx:p-0 hx:text-center hx:text-white hx:opacity-50 hx:transition-opacity hx:duration-150 hx:ease-[cubic-bezier(0.25,0.1,0.25,1.0)] hx:hover:text-white hx:hover:no-underline hx:hover:opacity-90 hx:hover:outline-none hx:focus:text-white hx:focus:no-underline hx:focus:opacity-90 hx:focus:outline-none hx:motion-reduce:transition-none"
+    type="button"
+    data-twe-target="#{{ $id }}"
+    data-twe-slide="next">
+    <span class="hx:inline-block hx:h-8 hx:w-8">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="4.5"
+        stroke="currentColor"
+        class="hx:h-6 hx:w-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+      </svg>
+    </span>
+    <span
+      class="hx:!absolute !-m-px hx:!h-px hx:!w-px hx:!overflow-hidden hx:!whitespace-nowrap hx:!border-0 hx:!p-0 ![clip:rect(0,0,0,0)]"
+      >Nextsads</span
+    >
+  </button>
+</div>

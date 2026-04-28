@@ -1,0 +1,8 @@
+<a
+  class="hx:!rounded-md hx:bg-primary-600 hx:px-4 hx:py-2 hx:!text-neutral hx:!no-underline hx:hover:!bg-primary-500 hx:dark:bg-primary-800 hx:dark:hover:!bg-primary-700"
+  {{ with .Get "href" }}href="{{ . }}"{{ end }}
+  {{ with .Get "target" }}target="{{ . }}"{{ end }}
+  {{ with .Get "rel" }}rel="{{ . }}"{{ end }}
+  role="button">
+  {{ .Inner }}
+</a>

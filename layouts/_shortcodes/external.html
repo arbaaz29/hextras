@@ -1,0 +1,200 @@
+{{ $id := delimit (slice "external" (partial "functions/uid.html" .)) "-" }}
+{{- $url := .Get "url" -}}
+{{- $title := .Get "title" -}}
+{{- $description := .Get "description" -}}
+{{- $thumbnail := .Get "thumbnail" -}}
+{{- $processImage := .Get "processImage" | default false -}}
+{{- $thumbnailURL := "" -}}
+
+{{/* Handle local thumbnail images */}}
+{{- if $thumbnail -}}
+  {{- if hasPrefix $thumbnail "http" -}}
+    {{/* External URL - use as is */}}
+    {{- $thumbnailURL = $thumbnail -}}
+  {{- else if hasPrefix $thumbnail "/" -}}
+    {{/* Static file - use as is */}}
+    {{- $thumbnailURL = $thumbnail -}}
+  {{- else -}}
+    {{/* Try to find as page resource first */}}
+    {{- $resource := .Page.Resources.GetMatch $thumbnail -}}
+    {{- if $resource -}}
+      {{- if $processImage -}}
+        {{/* Process image for better performance */}}
+        {{- $processed := $resource.Resize "800x400 webp q85" -}}
+        {{- $thumbnailURL = $processed.RelPermalink -}}
+      {{- else -}}
+        {{- $thumbnailURL = $resource.RelPermalink -}}
+      {{- end -}}
+    {{- else -}}
+      {{/* Try global resources */}}
+      {{- $globalResource := resources.Get $thumbnail -}}
+      {{- if $globalResource -}}
+        {{- if $processImage -}}
+          {{- $processed := $globalResource.Resize "800x400 webp q85" -}}
+          {{- $thumbnailURL = $processed.RelPermalink -}}
+        {{- else -}}
+          {{- $thumbnailURL = $globalResource.RelPermalink -}}
+        {{- end -}}
+      {{- else -}}
+        {{/* Fallback to static file */}}
+        {{- $thumbnailURL = print "/" $thumbnail -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $showThumbnail := .Get "showThumbnail" | default true -}}
+{{- $icon := .Get "icon" | default "link" -}}
+{{- $language := .Get "language" -}}
+{{- $stats1Label := .Get "stats1Label" -}}
+{{- $stats1Value := .Get "stats1Value" -}}
+{{- $stats2Label := .Get "stats2Label" -}}
+{{- $stats2Value := .Get "stats2Value" -}}
+{{- $newTab := .Get "newTab" | default true -}}
+
+{{/* Auto-fetch Open Graph data if URL is provided and no thumbnail/title/description */}}
+{{- if and $url (or (not $thumbnailURL) (not $title) (not $description)) -}}
+  {{- with resources.GetRemote $url -}}
+    {{/* Extract Open Graph and meta data */}}
+    {{- $ogTitleRegex := `<meta\s+(?:property="og:title"|name="og:title")\s+content=["']([^"']+)["']` -}}
+    {{- $ogDescRegex := `<meta\s+(?:property="og:description"|name="og:description")\s+content=["']([^"']+)["']` -}}
+    {{- $ogImageRegex := `<meta\s+(?:property="og:image"|name="og:image")\s+content=["']([^"']+)["']` -}}
+    {{- $titleRegex := `<title[^>]*>([^<]+)</title>` -}}
+    {{- $descRegex := `<meta\s+name="description"\s+content=["']([^"']+)["']` -}}
+    
+    {{/* Get title */}}
+    {{- if not $title -}}
+      {{- $ogTitleMatch := findRE $ogTitleRegex .Content 1 -}}
+      {{- if $ogTitleMatch -}}
+        {{- $title = index (findRESubmatch $ogTitleRegex (index $ogTitleMatch 0)) 1 -}}
+      {{- else -}}
+        {{- $titleMatch := findRE $titleRegex .Content 1 -}}
+        {{- if $titleMatch -}}
+          {{- $title = index (findRESubmatch $titleRegex (index $titleMatch 0)) 1 -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    
+    {{/* Get description */}}
+    {{- if not $description -}}
+      {{- $ogDescMatch := findRE $ogDescRegex .Content 1 -}}
+      {{- if $ogDescMatch -}}
+        {{- $description = index (findRESubmatch $ogDescRegex (index $ogDescMatch 0)) 1 -}}
+      {{- else -}}
+        {{- $descMatch := findRE $descRegex .Content 1 -}}
+        {{- if $descMatch -}}
+          {{- $description = index (findRESubmatch $descRegex (index $descMatch 0)) 1 -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    
+    {{/* Get thumbnail */}}
+    {{- if not $thumbnailURL -}}
+      {{- $ogImageMatch := findRE $ogImageRegex .Content 1 -}}
+      {{- if $ogImageMatch -}}
+        {{- $thumbnailURL = index (findRESubmatch $ogImageRegex (index $ogImageMatch 0)) 1 -}}
+        {{/* Make relative URLs absolute */}}
+        {{- if and $thumbnailURL (not (hasPrefix $thumbnailURL "http")) -}}
+          {{- $baseURL := urls.Parse $url -}}
+          {{- if hasPrefix $thumbnailURL "/" -}}
+            {{- $thumbnailURL = print $baseURL.Scheme "://" $baseURL.Host $thumbnailURL -}}
+          {{- else -}}
+            {{- $thumbnailURL = print $baseURL.Scheme "://" $baseURL.Host "/" $thumbnailURL -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{/* Fallback values */}}
+{{- $title = $title | default "External Link" -}}
+{{- $description = $description | default "" -}}
+
+<div class="external-card-wrapper">
+  <a id="{{ $id }}" href="{{ $url }}" 
+     {{- if $newTab }} target="_blank" rel="noopener noreferrer"{{ end }} 
+     class="hx:cursor-pointer hx:group">
+    <div class="hx:w-full hx:md:w-auto hx:p-0 hx:m-0 hx:border hx:border-neutral-200 hx:dark:border-neutral-700 hx:rounded-md hx:shadow-2xl hx:hover:shadow-3xl hx:transition-all hx:duration-300 hx:group-hover:scale-[1.02]">
+      
+      {{- if and $showThumbnail $thumbnailURL -}}
+        <div class="hx:w-full nozoom hx:overflow-hidden hx:rounded-t-md">
+          <img
+            src="{{ $thumbnailURL }}"
+            alt="{{ $title }} Thumbnail"
+            class="nozoom hx:mt-0 hx:mb-0 hx:w-full hx:h-48 hx:object-cover hx:group-hover:scale-105 hx:transition-transform hx:duration-300"
+            loading="lazy">
+        </div>
+      {{- end -}}
+
+      <div class="hx:w-full hx:md:w-auto hx:pt-3 hx:p-5">
+        <div class="hx:flex hx:items-center hx:mb-2">
+          <!-- <span class="hx:text-2xl hx:text-neutral-800 hx:dark:text-neutral hx:mr-3">
+            {{ partial "icon.html" $icon }}
+          </span> -->
+          <div class="hx:m-0 hx:font-bold hx:text-xl hx:text-neutral-800 hx:dark:text-neutral hx:group-hover:text-primary-500 hx:transition-colors hx:duration-200">
+            {{ $title | markdownify }}
+          </div>
+          {{- if $newTab -}}
+            <span class="hx:ml-2 hx:text-sm hx:text-neutral-500 hx:dark:text-neutral-400">
+              {{ partial "icon.html" "external-link" }}
+            </span>
+          {{- end -}}
+        </div>
+
+        <p class="hx:m-0 hx:mt-2 hx:text-md hx:text-neutral-600 hx:dark:text-neutral-300 hx:line-clamp-3">
+          {{ $description | markdownify }}
+        </p>
+
+        {{- if or $language $stats1Value $stats2Value -}}
+          <div class="hx:m-0 hx:mt-3 hx:flex hx:items-center hx:flex-wrap hx:gap-4">
+            {{- if $language -}}
+              <div class="hx:flex hx:items-center">
+                <span class="hx:mr-1 hx:inline-block hx:h-3 hx:w-3 hx:rounded-full hx:bg-primary-500"></span>
+                <div class="hx:text-sm hx:text-neutral-700 hx:dark:text-neutral-300">
+                  {{ $language }}
+                </div>
+              </div>
+            {{- end -}}
+
+            {{- if $stats1Value -}}
+              <!-- <div class="hx:flex hx:items-center">
+                <span class="hx:text-sm hx:mr-1 hx:text-neutral-600 hx:dark:text-neutral-400">
+                  {{ partial "icon.html" ($stats1Label | default "star") }}
+                </span>
+                <div class="hx:text-sm hx:text-neutral-700 hx:dark:text-neutral-300">
+                  {{ $stats1Value }}
+                </div>
+              </div> -->
+            {{- end -}}
+
+            {{- if $stats2Value -}}
+              <div class="hx:flex hx:items-center">
+                <span class="hx:text-sm hx:mr-1 hx:text-neutral-600 hx:dark:text-neutral-400">
+                  {{ partial "icon.html" ($stats2Label | default "users") }}
+                </span>
+                <div class="hx:text-sm hx:text-neutral-700 hx:dark:text-neutral-300">
+                  {{ $stats2Value }}
+                </div>
+              </div>
+            {{- end -}}
+          </div>
+        {{- end -}}
+
+        {{- if $url -}}
+          <div class="hx:mt-3 hx:text-xs hx:text-neutral-500 hx:dark:text-neutral-400 hx:truncate">
+            {{ $url }}
+          </div>
+        {{- end -}}
+      </div>
+    </div>
+  </a>
+</div>
+
+<style>
+.external-card-wrapper .line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

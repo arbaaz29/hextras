@@ -1,0 +1,38 @@
+{{ $parent := .Parent }}
+{{ $separated := false }}
+{{ if $parent }}
+  {{ $separated = $parent.Get "separated" | default false }}
+{{ end }}
+{{ $isSeparated := or (eq $separated true) (eq $separated "true") }}
+
+{{ $title := .Get "title" | default (.Get "header") }}
+{{ $icon := .Get "icon" }}
+{{ $md := .Get "md" | default true }}
+{{ $open := .Get "open" | default false }}
+{{ $isOpen := or (eq $open true) (eq $open "true") }}
+{{ $align := .Get "align" }}
+
+<details
+  class="hx:group {{ if $isSeparated }}hx:rounded-lg hx:border hx:border-neutral-200 hx:dark:border-neutral-700 hx:overflow-hidden{{ else }}hx:border-none{{ end }}"
+  data-accordion-item
+  {{ if $isOpen }}open{{ end }}
+>
+  <summary class="hx:flex hx:w-full hx:cursor-pointer hx:items-center hx:justify-between hx:gap-4 hx:px-4 hx:py-3 hx:text-left hx:text-lg hx:font-semibold hx:text-neutral-900 hx:dark:text-neutral-100">
+    <span class="hx:flex hx:items-center hx:gap-4">
+      {{ with $icon }}
+        {{ partial "icon.html" . }}
+      {{ end }}
+      <span>{{ $title }}</span>
+    </span>
+    <span class="accordion-chevron hx:ms-auto hx:flex hx:h-5 hx:w-5 hx:items-center hx:justify-center hx:print:hidden">
+      {{ partial "icon.html" "chevron-down" }}
+    </span>
+  </summary>
+<div class="hx:px-4 hx:pb-4 hx:text-neutral-700 hx:dark:text-neutral-300{{ if $align }} hx:text-{{ $align }}{{ end }}">
+    {{ if $md }}
+      {{- .Inner | markdownify -}}
+    {{ else }}
+      {{- .Inner -}}
+    {{ end }}
+  </div>
+</details>
