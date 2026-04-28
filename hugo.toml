@@ -1,4 +1,4 @@
-# Hextra_Arbaaz theme-level config.
+# hextras theme-level config.
 #
 # This file declares the markup / output-format / Hugo-version defaults that
 # the theme expects so shortcodes (mermaid, katex, alert, etc.) render out of
@@ -9,17 +9,17 @@
 # Plug-and-go install paths (pick one — both are documented in README.md):
 #
 #   A. Vendored (no Go required):
-#        themes/Hextra_Arbaaz/   <- this repo
+#        themes/hextras/   <- this repo
 #        themes/hextra/          <- imfing/hextra
 #        # in site hugo.toml:
-#        theme = ["Hextra_Arbaaz", "hextra"]
+#        theme = ["hextras", "hextra"]
 #
 #   B. Hugo Modules (recommended for shared/CI builds):
 #        # in site hugo.toml:
-#        theme = "Hextra_Arbaaz"
+#        theme = "hextras"
 #        [module]
 #          [[module.imports]]
-#            path = "github.com/arbaaz29/Hextra_Arbaaz"
+#            path = "github.com/arbaaz29/hextras"
 #          [[module.imports]]
 #            path = "github.com/imfing/hextra"
 #

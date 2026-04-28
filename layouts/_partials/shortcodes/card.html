@@ -8,7 +8,7 @@
 {{- $height := .height -}}
 {{- $imageStyle := .imageStyle -}}
 {{- $tag := .tag -}}
-{{- $tagColor := .tagColor | default .tagType | default "" -}}{{- /* Compatibility with previous parameter. */ -}}
+{{- $tagColor := .tagColor | default .tagType | default "" -}}
 {{- $tagBorder := not (eq .tagBorder false) | default true }}
 {{- $tagIcon := .tagIcon -}}
 
@@ -19,7 +19,6 @@
 
 {{- $external := strings.HasPrefix $link "http" -}}
 {{- $href := cond (strings.HasPrefix $link "/") ($link | relURL) $link -}}
-
 
 <a
   class="hextra-card hx:group hx:flex hx:flex-col hx:justify-start hx:overflow-hidden hx:rounded-lg hx:border hx:border-gray-200 hx:text-current hx:no-underline hx:dark:shadow-none hx:hover:shadow-gray-100 hx:dark:hover:shadow-none hx:shadow-gray-100 hx:active:shadow-sm hx:active:shadow-gray-200 hx:transition-all hx:duration-200 {{ $linkClass }}"
@@ -46,13 +45,17 @@
     {{- $padding = "hx:pt-4 hx:px-4" -}}
   {{- end -}}
 
-  <div class="hx:mt-auto">
+  <!-- FIX: removed hx:mt-auto so content stays at top -->
+  <div>
     <span class="hextra-card-icon hx:flex hx:font-semibold hx:items-start hx:gap-2 {{ $padding }} hx:text-gray-700 hx:hover:text-gray-900 hx:dark:text-neutral-200 hx:dark:hover:text-neutral-50">
       {{- with $icon }}{{ partial "utils/icon.html" (dict "name" $icon) -}}{{- end -}}
       {{- $title -}}
     </span>
+
     {{- with $subtitle -}}
-      <div class="hextra-card-subtitle hx:line-clamp-3 hx:text-sm hx:font-normal hx:text-gray-500 hx:dark:text-gray-400 hx:px-4 hx:mb-4 hx:mt-2">{{- $subtitle | markdownify -}}</div>
+      <div class="hextra-card-subtitle hx:line-clamp-3 hx:text-sm hx:font-normal hx:text-gray-500 hx:dark:text-gray-400 hx:px-4 hx:mb-4 hx:mt-2">
+        {{- $subtitle | markdownify -}}
+      </div>
     {{- end -}}
   </div>
 

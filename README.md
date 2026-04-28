@@ -1,4 +1,4 @@
-# Hextra_Arbaaz
+# hextras
 
 A personalised Hugo theme that layers on top of [Hextra](https://github.com/imfing/hextra). Drop it into a site, point Hugo at it, build — no copy-pasting partials, no per-site re-import of shortcodes, no rewiring the author block.
 
@@ -16,16 +16,16 @@ What you get on top of stock Hextra:
 
 ## Quick start
 
-One repo. One theme line. No Go, no `hugo mod`, no second clone — Hextra is bundled inside Hextra_Arbaaz.
+One repo. One theme line. No Go, no `hugo mod`, no second clone — Hextra is bundled inside hextras.
 
 ```bash
 hugo new site mysite && cd mysite
 
 # 1. Drop the theme into themes/
-git clone https://github.com/arbaaz29/Hextra_Arbaaz.git themes/Hextra_Arbaaz
+git clone https://github.com/arbaaz29/hextras.git themes/hextras
 
 # 2. Copy the example config as a starting point
-cp themes/Hextra_Arbaaz/exampleSite/hugo.toml hugo.toml
+cp themes/hextras/exampleSite/hugo.toml hugo.toml
 
 # 3. Build / serve
 hugo server
@@ -34,19 +34,19 @@ hugo server
 Your `hugo.toml` only needs:
 
 ```toml
-theme = "Hextra_Arbaaz"
+theme = "hextras"
 ```
 
 That's it. Edit `[params.author]`, `[menu.main]`, and the rest of `hugo.toml` to match your site.
 
-> **Why everything is bundled:** Hugo's theme-of-theme inheritance only resolves theme paths the *site* knows about — not paths nested inside another theme. Asking the user to clone Hextra separately every time is exactly the friction this theme is supposed to remove. So Hextra's `layouts/`, `assets/`, `data/`, `static/`, `i18n/` are merged into this repo at theme-load time, with Hextra_Arbaaz files always winning for same-named paths.
+> **Why everything is bundled:** Hugo's theme-of-theme inheritance only resolves theme paths the *site* knows about — not paths nested inside another theme. Asking the user to clone Hextra separately every time is exactly the friction this theme is supposed to remove. So Hextra's `layouts/`, `assets/`, `data/`, `static/`, `i18n/` are merged into this repo at theme-load time, with hextras files always winning for same-named paths.
 
 ---
 
 ## Theme structure
 
 ```
-Hextra_Arbaaz/
+hextras/
 ├── theme.toml                 # Hugo theme manifest (consumed by hugo themes / Hugo Showcase)
 ├── hugo.toml                  # theme-level defaults: markup, output formats, Hugo version pin
 ├── go.mod                     # module path for Modules consumers
@@ -104,14 +104,14 @@ Hextra_Arbaaz/
     │   ├── shortcodes-test.md # exercises every imported shortcode
     │   └── certifications/_index.md
     └── themes/
-        └── Hextra_Arbaaz/     # Windows directory junction → ../../..  (so the example builds in-place)
+        └── hextras/     # Windows directory junction → ../../..  (so the example builds in-place)
 ```
 
 ---
 
 ## Shortcodes
 
-All 34 are loaded automatically; use them in any markdown file with `{{</* name args */>}}` syntax. Where Hextra ships a shortcode of the same name, this theme's version takes priority (theme inheritance order is `["Hextra_Arbaaz", "hextra"]`).
+All 34 are loaded automatically; use them in any markdown file with `{{</* name args */>}}` syntax. Where Hextra ships a shortcode of the same name, the hextras override at `layouts/_shortcodes/<name>.html` was kept during the merge, so this theme's version is the one Hugo finds.
 
 | Shortcode        | What it renders                                                                                  |
 | ---------------- | ------------------------------------------------------------------------------------------------ |
@@ -154,6 +154,52 @@ A live exercise of every shortcode lives in [exampleSite/content/shortcodes-test
 ### Adding a new shortcode
 
 Drop a new file at `layouts/_shortcodes/<name>.html` and reference it as `{{</* <name> */>}}`. To override a Hextra shortcode, name your file the same as the upstream one — anything you place in the *site*'s `layouts/_shortcodes/` wins over the theme's copy.
+
+---
+
+## Auto-card list (`layout: cards`)
+
+Tired of maintaining a giant `{{</* cards */>}}` block by hand and editing it every time you publish? Set one front-matter line on a section's `_index.md` and the page becomes a self-updating card grid of every child page.
+
+```yaml
+# content/writeups/_index.md
+---
+title: "Writeups"
+layout: cards
+cols: 3                                  # optional, default 3
+orderBy: weight                          # weight | date | date-rev | title (default: weight)
+defaultCardImage: "/images/writeups/featured.jpg"
+cardImageStyle: "object-fit:cover; aspect-ratio:16/9;"
+description: "Auto-listed from sub-pages."
+---
+
+Optional intro markdown rendered above the grid.
+```
+
+Each child page (a regular `.md` or a sub-section's `_index.md`) shows up as one card. Per-child front matter:
+
+```yaml
+---
+title: "HackTheBox: AirTouch"
+description: "Wireless attack chain — WPA-PEAP capture to internal pivot."
+weight: 1                                # ordering within the parent
+cardImage: "/images/writeups/airtouch.jpg"   # optional, falls back to defaultCardImage
+cardSubtitle: "Wireless attack chain"        # optional, falls back to description
+cardIcon: "shield"                       # optional Hextra icon name
+cardTag: "new"                           # optional badge
+cardTagColor: "blue"
+cardImageStyle: "..."                    # optional per-card override
+hidden: true                             # exclude from the grid (omit otherwise)
+---
+```
+
+**Nested lists** work transparently: a sub-section's `_index.md` can itself set `layout: cards` and the user clicks down through the tree. Mix and match — a sub-section that needs a custom write-up can omit the line and gets the default Hextra section view instead.
+
+The image is resolved in this order: page resource (e.g. an image sitting next to the markdown file) → site asset/static path → absolute URL. So both `cardImage: "cover.jpg"` (sibling file) and `cardImage: "/images/writeups/foo.jpg"` (absolute static path) work.
+
+A live example lives in the example site at `exampleSite/content/writeups/` — `/writeups/` auto-lists `HTB` and `Wiz` as cards; `/writeups/HTB/` auto-lists `airtouch` and `browsed`; `/writeups/Wiz/` falls back to the default list view.
+
+> **How it works under the hood:** [layouts/_default/cards.html](layouts/_default/cards.html) is a section/list layout selected by `layout: cards`. It walks `.Pages` (direct children only — not recursive), drops anything with `hidden: true`, sorts by your `orderBy` choice, then calls Hextra's existing `partials/shortcodes/card` partial for each — same look as a hand-written `{{</* card */>}}`, no shortcode round-trip required.
 
 ---
 
@@ -229,7 +275,7 @@ The Hextra docs cover every other extension point: <https://imfing.github.io/hex
 
 ## Modifying the theme itself
 
-If you fork Hextra_Arbaaz and want to evolve it:
+If you fork hextras and want to evolve it:
 
 1. **Add or override a layout** — drop the file at the matching path under `layouts/`. Since Hextra is bundled inside this repo (not a separate theme), Hextra files live alongside the overrides; just edit them in place or replace them.
 2. **Add a shortcode** — `layouts/_shortcodes/<name>.html`. Hugo resolves `{{</* name */>}}` to it automatically.
@@ -254,11 +300,11 @@ If you fork Hextra_Arbaaz and want to evolve it:
    # then open public/index.html and public/shortcodes-test/index.html
    ```
 
-The `exampleSite/` is wired with a Windows directory junction (`exampleSite/themes/Hextra_Arbaaz` → repo root), so edits to the theme are picked up by the next `hugo server` reload without copying anything.
+The `exampleSite/` is wired with a Windows directory junction (`exampleSite/themes/hextras` → repo root), so edits to the theme are picked up by the next `hugo server` reload without copying anything.
 
 > On Linux/macOS, replace the junction with a symlink:
 > ```bash
-> ln -s ../../.. exampleSite/themes/Hextra_Arbaaz
+> ln -s ../../.. exampleSite/themes/hextras
 > ```
 
 ---

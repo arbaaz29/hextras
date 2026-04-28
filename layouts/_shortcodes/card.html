@@ -16,7 +16,14 @@
   @example {{< card link="/" title="Image Card"
 }}
 */ -}}
-{{- $link := .Get "link" -}}
+{{- $linkParam := .Get "link" -}}
+{{- $link := $linkParam -}}
+
+{{- if not (urls.Parse $linkParam).Scheme -}}
+  {{- with .Page.GetPage $linkParam -}}
+    {{- $link = .RelPermalink -}}
+  {{- end -}}
+{{- end -}}
 {{- $title := .Get "title" -}}
 {{- $icon := .Get "icon" -}}
 {{- $subtitle := .Get "subtitle" -}}
