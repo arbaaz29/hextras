@@ -7,6 +7,7 @@
         {{ partial "breadcrumb.html" (dict "page" . "enable" false) }}
         <div class="content">
           {{ if .Title }}<h1 class="hx:mb-6">{{ .Title }}</h1>{{ end }}
+          <br class="hx:mt-1.5 hx:text-sm" />
           {{ if site.Params.list.showAuthor | default (site.Params.article.showAuthor | default true) }}
             {{ partial "author-block.html" . }}
           {{ end }}
