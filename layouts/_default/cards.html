@@ -1,0 +1,128 @@
+{{/*
+  hextras "cards" layout — opt-in auto card grid for any section.
+
+  Activate it from a section's _index.md front matter:
+
+      ---
+      title: "Writeups"
+      layout: cards
+      # optional knobs:
+      cols: 3                            # grid columns (default 3)
+      orderBy: weight                    # weight | date | date-rev | title | (default: weight then date)
+      defaultCardImage: "/images/featured.jpg"
+      cardImageStyle: "object-fit:cover; aspect-ratio:16/9;"
+      ---
+
+      Optional intro markdown rendered above the grid.
+
+  Each child page (regular .md or its own _index.md for sub-sections) shows up as
+  one card. Per-child front matter:
+
+      ---
+      title: "HackTheBox: AirTouch"
+      cardImage: "/images/featured.jpg"   # optional, falls back to defaultCardImage
+      cardSubtitle: "Wireless attack chain"
+      cardIcon: "shield"                  # optional Hextra icon name
+      cardTag: "new"                      # optional badge
+      cardTagColor: "blue"
+      cardImageStyle: "..."               # optional per-card override
+      weight: 5                           # optional ordering
+      hidden: true                        # set to exclude from the grid
+      ---
+
+  Nested sections work transparently: a sub-section's _index.md can itself use
+  `layout: cards` and the user clicks down through the tree.
+*/}}
+
+{{ define "main" }}
+  <div class='hx:mx-auto hx:flex hextra-max-page-width'>
+    {{ partial "sidebar.html" (dict "context" . "disableSidebar" true "displayPlaceholder" true) }}
+    {{ partial "toc.html" . }}
+    <article class="hx:w-full hx:break-words hx:flex hx:min-h-[calc(100vh-var(--navbar-height))] hx:min-w-0 hx:justify-center hx:pb-8 hx:pr-[calc(env(safe-area-inset-right)-1.5rem)]">
+      <main id="content" class="hx:w-full hx:min-w-0 hextra-max-content-width hx:px-6 hx:pt-4 hx:md:px-12">
+        {{ partial "breadcrumb.html" (dict "page" . "enable" false) }}
+
+        {{ if .Title }}
+          <h1 class="hx:mt-2 hx:mb-6 hx:text-4xl hx:font-bold hx:tracking-tight hx:text-slate-900 hx:dark:text-slate-100">{{ .Title }}</h1>
+        {{ end }}
+
+        {{ if site.Params.list.showAuthor | default (site.Params.article.showAuthor | default true) }}
+          {{ partial "author-block.html" . }}
+        {{ end }}
+
+        {{- with .Content -}}
+          <div class="content">{{ . }}</div>
+        {{- end -}}
+
+        {{- /* ---- Resolve options ---- */ -}}
+        {{- $cols            := .Params.cols            | default 3 -}}
+        {{- $orderBy         := .Params.orderBy         | default "weight-then-date" -}}
+        {{- $defaultImage    := .Params.defaultCardImage | default site.Params.defaultCardImage -}}
+        {{- $defaultStyle    := .Params.cardImageStyle  | default "object-fit:cover; aspect-ratio:16/9;" -}}
+
+        {{- /* ---- Collect children (regular pages + sub-sections), drop hidden ---- */ -}}
+        {{- $pages := where .Pages "Params.hidden" "ne" true -}}
+
+        {{- /* ---- Sort ---- */ -}}
+        {{- if eq $orderBy "weight" -}}
+          {{- $pages = $pages.ByWeight -}}
+        {{- else if eq $orderBy "date" -}}
+          {{- $pages = $pages.ByDate -}}
+        {{- else if eq $orderBy "date-rev" -}}
+          {{- $pages = $pages.ByDate.Reverse -}}
+        {{- else if eq $orderBy "title" -}}
+          {{- $pages = $pages.ByTitle -}}
+        {{- else -}}
+          {{/* default: ByWeight already falls back to date for tied/missing weights */}}
+          {{- $pages = $pages.ByWeight -}}
+        {{- end -}}
+
+        {{- if $pages -}}
+          <div class="hextra-cards hx:mt-6 hx:gap-4 hx:grid not-prose" style="--hextra-cards-grid-cols: {{ $cols }};">
+            {{- range $pages -}}
+              {{- /* Resolve the card image: front matter > section default > site default. */ -}}
+              {{- $img := .Params.cardImage | default $defaultImage -}}
+              {{- $resolvedImg := "" -}}
+              {{- with $img -}}
+                {{- if (urls.Parse .).Scheme -}}
+                  {{- /* Absolute URL — pass through. */ -}}
+                  {{- $resolvedImg = . -}}
+                {{- else -}}
+                  {{- /* Try page-relative resource, then global asset, then static-style absolute. */ -}}
+                  {{- with or ($.Resources.Get .) (resources.Get .) -}}
+                    {{- $resolvedImg = .RelPermalink -}}
+                  {{- else -}}
+                    {{- if hasPrefix . "/" -}}
+                      {{- $resolvedImg = relURL (strings.TrimPrefix "/" .) -}}
+                    {{- else -}}
+                      {{- $resolvedImg = . -}}
+                    {{- end -}}
+                  {{- end -}}
+                {{- end -}}
+              {{- end -}}
+
+              {{- partial "shortcodes/card" (dict
+                  "page"        .
+                  "link"        .RelPermalink
+                  "title"       .Title
+                  "subtitle"    (.Params.cardSubtitle | default .Description)
+                  "image"       $resolvedImg
+                  "alt"         .Title
+                  "imageStyle"  (.Params.cardImageStyle | default $defaultStyle)
+                  "icon"        .Params.cardIcon
+                  "tag"         .Params.cardTag
+                  "tagType"     (.Params.cardTagColor | default .Params.cardTagType)
+                ) -}}
+            {{- end -}}
+          </div>
+        {{- else -}}
+          <p class="hx:mt-8 hx:text-neutral-500 hx:dark:text-neutral-400 hx:italic">No articles yet.</p>
+        {{- end -}}
+
+        {{ if site.Params.article.showAuthorBottom | default false }}
+          {{ partial "author-block.html" . }}
+        {{ end }}
+      </main>
+    </article>
+  </div>
+{{ end }}
