@@ -81,7 +81,7 @@ hextras/
 ├── layouts/                   # ~160 .html files: Arbaaz overrides + the rest of Hextra
 │   ├── home.html              # OVERRIDE — injects author block above content
 │   ├── hextra-home.html       # OVERRIDE — invoked when `layout: hextra-home` is set
-│   ├── single.html            # OVERRIDE — injects author block
+│   ├── single.html            # OVERRIDE — author block + breadcrumb-above-title + related cards + tag chips + prev/next pager
 │   ├── list.html              # OVERRIDE — injects author block
 │   ├── blog/single.html       # OVERRIDE — author block + date + reading time
 │   ├── docs/single.html       # OVERRIDE — author block + breadcrumb
@@ -200,6 +200,46 @@ The image is resolved in this order: page resource (e.g. an image sitting next t
 A live example lives in the example site at `exampleSite/content/writeups/` — `/writeups/` auto-lists `HTB` and `Wiz` as cards; `/writeups/HTB/` auto-lists `airtouch` and `browsed`; `/writeups/Wiz/` falls back to the default list view.
 
 > **How it works under the hood:** [layouts/_default/cards.html](layouts/_default/cards.html) is a section/list layout selected by `layout: cards`. It walks `.Pages` (direct children only — not recursive), drops anything with `hidden: true`, sorts by your `orderBy` choice, then calls Hextra's existing `partials/shortcodes/card` partial for each — same look as a hand-written `{{</* card */>}}`, no shortcode round-trip required.
+
+---
+
+## Article extras (breadcrumb · related · tags · pager)
+
+Every article rendered by [layouts/single.html](layouts/single.html) (the default for leaf pages outside `blog/` and `docs/`) now ships four extras around the body:
+
+1. **Breadcrumb above the title** — ancestor trail (e.g. `Writeups > HTB > AirTouch`), uniform `mt-4 mb-6` between it and the `<h1>`.
+2. **Related Articles card grid** — pages that share at least one tag with the current page, sorted newest-first, capped at `relatedLimit`.
+3. **Tag chips** — opt-in per article, renders the page's tags as clickable `#chip` links to `/tags/<slug>/`.
+4. **Prev/next pager** — links to neighbouring articles in the same section.
+
+All four are togglable per page via front matter, with site-level defaults under `[params.article]`:
+
+| Page front matter | Site default | Default | Behaviour |
+|---|---|---|---|
+| `showRelated: true \| false` | `[params.article] showRelated` | `true` | Render the "Related Articles" grid. |
+| — | `[params.article] relatedLimit` | `3` | Max number of related cards. |
+| `showTags: true \| false` | `[params.article] showTags` | `false` | Render tag chips at the bottom of the article. |
+| `showPager: true \| false` | `[params.article] showPager` | `true` | Render the prev/next pager. |
+| `reversePagination: true \| false` | — | `true` | Swap which sibling counts as "previous". |
+
+Per-page values use `isset`, so an explicit `false` overrides a `true` site default (Hugo's `default` would treat `false` as missing and fall back to the site value, which is wrong for a toggle).
+
+Example front matter that opts in to tags and accepts the rest of the defaults:
+
+```yaml
+---
+title: "HackTheBox: AirTouch"
+date: 2026-04-18
+tags: ["HTB", "wireless", "vlan-pivot"]
+showTags: true
+---
+```
+
+Related-article matching is by **tag intersection** — any page whose `Params.tags` shares at least one entry with the current page's tags is a candidate. Sorted by `Date` descending, capped at `relatedLimit`. Pages outside the section are eligible (so a Wiz writeup can surface as "Related" on an HTB writeup if they share `cloud-security`). The block is hidden entirely when no related pages exist.
+
+Image resolution for related cards mirrors the auto-card list: page resource → site asset/static path → absolute URL. Each card reuses [layouts/_partials/shortcodes/card.html](layouts/_partials/shortcodes/card.html) so the look matches a hand-written `{{</* card */>}}`. The pager reuses [layouts/_partials/components/pager.html](layouts/_partials/components/pager.html); the chips reuse [layouts/_partials/tags.html](layouts/_partials/tags.html).
+
+> **Why no "single tag page" override:** Hugo already auto-generates `/tags/` (taxonomy index) and `/tags/<slug>/` (term page) from the `[taxonomies]` config. The theme's existing [layouts/taxonomy.html](layouts/taxonomy.html) and [layouts/term.html](layouts/term.html) handle those — chips link directly into the auto-generated routes, no extra layout needed.
 
 ---
 

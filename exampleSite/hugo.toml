@@ -53,22 +53,11 @@ buildFuture      = false
   [[menu.main]]
     identifier = "writeups"
     name       = "Writeups"
+    pageref        = "writeups"
     weight     = 1
     [menu.main.params]
       type = "link"
       icon = "collection"
-  [[menu.main]]
-    identifier = "htb"
-    name       = "HTB ↗"
-    url        = "https://writeups.arbaazjamadar.com/htb/"
-    parent     = "writeups"
-    weight     = 1
-  [[menu.main]]
-    identifier = "wiz"
-    name       = "Wiz ↗"
-    url        = "https://writeups.arbaazjamadar.com/wiz/"
-    parent     = "writeups"
-    weight     = 2
 
   [[menu.main]]
     identifier = "projects"
@@ -97,6 +86,15 @@ buildFuture      = false
     url        = "https://certifications.arbaazjamadar.com/offsec/"
     parent     = "certifications"
     weight     = 1
+
+  [[menu.main]]
+  identifier = "tags"
+  name       = "Tags"
+  url        = "/tags/"
+  weight     = 4
+  [menu.main.params]
+    type = "link"
+    icon = "tag"
 
   [[menu.main]]
     name   = "Search"

@@ -2,6 +2,44 @@
 
 All notable changes to **hextras** are recorded here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] — 2026-04-28
+
+Adds an article-footer block to `layouts/single.html`: breadcrumb-above-title with uniform spacing, a "Related Articles" card grid keyed off shared tags, opt-in tag chips, and a prev/next sibling pager. All four are togglable per page and globally.
+
+### Added in `layouts/single.html`
+
+- **Breadcrumb above the title.** `partial "breadcrumb.html"` is now invoked with `enable: true` (was `false`), so the ancestor trail (e.g. `Writeups > HTB: HackTheBox Season 10 > HackTheBox: AirTouch`) renders directly before the `<h1>`. The leading `<br>` spacers were removed and the title now uses `hx:mt-4 hx:mb-6` for uniform vertical padding between the breadcrumb and the title.
+- **Related Articles card grid.** Pages whose `Params.tags` intersect the current page's tags are collected from `.Site.RegularPages`, sorted by `Date` descending, capped at `relatedLimit` (default 3), and rendered through the existing `partials/shortcodes/card.html` for visual parity with the auto-card list. Image resolution mirrors `layouts/_default/cards.html` — page resource → site asset → absolute URL. Block is hidden when no related pages exist.
+- **Tag chips at end of article.** Renders the existing `_partials/tags.html` (chip per tag, links to `/tags/<slug>/`) under a "Tags:" label. Off by default — opt-in.
+- **Prev/next sibling pager.** Invokes the existing `_partials/components/pager.html` with `reversePagination: true`. Shows `← previous` / `next →` links to siblings in the same section, separated from the body by a top border.
+
+### New front matter / site params (all optional)
+
+| Page front matter | Site param under `[params.article]` | Default | Effect |
+|---|---|---|---|
+| `showTags: true \| false` | `showTags = true \| false` | `false` | Render tag chips. |
+| `showRelated: true \| false` | `showRelated = true \| false` | `true` | Render the "Related Articles" grid. |
+| — | `relatedLimit = N` | `3` | Max number of related cards. |
+| `showPager: true \| false` | `showPager = true \| false` | `true` | Render the prev/next pager. |
+| `reversePagination: true \| false` | — | `true` | Swap which sibling counts as "previous". |
+
+Per-page values are checked with `isset` rather than `default`, so an explicit `showFoo: false` correctly disables the feature even when the site default is `true`.
+
+### Verified
+
+- `cd exampleSite && hugo` builds 146 pages in ~480 ms, 0 warnings.
+- `/writeups/htb/hackthebox-airtouch/` renders, in this order:
+  1. Breadcrumb: `Writeups > HTB: HackTheBox Season 10 > HackTheBox: AirTouch` (two chevron SVGs, ancestor links resolve).
+  2. `<h1>` with `hx:mt-4 hx:mb-6`.
+  3. Existing author block.
+  4. Article body.
+  5. **Related Articles** heading + 1 card linking to `/writeups/htb/browsed/` (the only sibling sharing the `HTB` tag in the example).
+  6. **Tags:** label + 24 chip links to `/tags/<slug>/` (`showTags: true` in page front matter).
+  7. Prev/next pager — `border-t` separator + chevron link to `/writeups/htb/browsed/`.
+- The build output writes to the slug-resolved path (`/writeups/htb/hackthebox-airtouch/`) — confirming the article passes through `layouts/single.html`, not `blog/single.html` or `docs/single.html` (those still render Hextra's existing layouts unchanged).
+
+---
+
 ## [0.3.0] — 2026-04-28
 
 Adds a self-updating card grid so section pages no longer need a hand-maintained `{{</* cards */>}}` block.
