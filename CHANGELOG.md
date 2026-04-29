@@ -2,6 +2,58 @@
 
 All notable changes to **hextras** are recorded here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.1] — 2026-04-29
+
+Three follow-up tweaks after visual review of the v0.5.0 spacing changes.
+
+### Changed
+
+- **Pager border-line balance.** In v0.5.0 the prev/next pager rendered with `mt-10` (40 px) above the border line and `pt-8` (32 px) below it; combined with the anchor's own `py-4`, the visual gap below the line was ~48 px, while the line still felt glued to the related-card grid above it. Bumped the spacer above the line to `mt-12` (48 px) in [layouts/single.html](layouts/single.html), and reduced the pager's own top padding to `pt-3` (12 px) in [layouts/_partials/components/pager.html](layouts/_partials/components/pager.html). New visual: 48 px above the line, ~28 px to the button text below — line now sits centred between the card and the buttons.
+- **Block-level shortcode margins bumped from `my-6` (24 px) to `my-8` (32 px).** The 24 px gap collapsed too tightly against the preceding `<h2>` (which has `mt-10` and no `mb-*`) — the heading visually merged into the shortcode. Updated:
+  - [layouts/_shortcodes/accordion.html](layouts/_shortcodes/accordion.html)
+  - [layouts/_shortcodes/alert.html](layouts/_shortcodes/alert.html)
+  - [layouts/_shortcodes/lead.html](layouts/_shortcodes/lead.html)
+  - [layouts/_shortcodes/details.html](layouts/_shortcodes/details.html)
+  - [layouts/_shortcodes/mermaid.html](layouts/_shortcodes/mermaid.html)
+  - [layouts/_partials/shortcodes/cards.html](layouts/_partials/shortcodes/cards.html)
+  - [layouts/_partials/shortcodes/callout.html](layouts/_partials/shortcodes/callout.html)
+- **Accordion internal padding now uniform.** [layouts/_shortcodes/accordionItem.html](layouts/_shortcodes/accordionItem.html) — three different padding values across the summary and content (`px-4 py-3` on summary, `px-4 pt-2 pb-4` on content) replaced with `hx:p-4` (16 px on all four sides) on both. Title row and body now have identical insets, so the open/closed states read symmetrically.
+
+### Verified
+
+- `cd exampleSite && hugo` builds 146 pages in ~1.6 s, 0 warnings.
+- `/writeups/htb/hackthebox-airtouch/` end-of-article block renders, in DOM order: related card grid → empty `<div class="hx:mt-12">` (48 px spacer) → pager `<div class="… border-t hx:pt-3 …">` (line + 12 px) → prev/next anchors with `hx:py-4` → tag chips. Pager `pt-8` no longer present.
+- `/shortcodes-test/`: `lead` (×2), `alert` (×1), `accordion` wrapper (×1) all render with `hx:my-8`. `accordionItem` summary renders with `hx:gap-4 hx:p-4`, content `<div>` with `hx:p-4 hx:text-neutral-700` (no asymmetric `pt-2 pb-4`).
+
+---
+
+## [0.5.0] — 2026-04-29
+
+Five small polish changes: drop the underline under H2s, normalise spacing around block-level shortcodes, give the accordion body a top inset, render the prev/next pager **before** the tag chips, and let `[params] copyright` / `[params] poweredBy` from `hugo.toml` drive the footer text instead of i18n + hard-coded fallback.
+
+### Changed
+
+- **H2 heading border removed.** [assets/css/typography.css:6](assets/css/typography.css#L6) had `hx:border-b hx:pb-1` baked into every `.content :where(h2)` rule, drawing a thin grey rule under every section header. Source updated to drop those classes; an additional override in [assets/css/custom.css](assets/css/custom.css) sets `border-bottom:0; padding-bottom:0` on the same selector, so consumers using the prebuilt `assets/css/compiled/main.css` bundle (which still has the underline baked in) also see the fix without a Tailwind rebuild. `custom.css` is concatenated after `main.css` in [layouts/_partials/head.html:37](layouts/_partials/head.html#L37), so the override wins on equal specificity.
+- **Block-level shortcodes now sit at uniform `my-6`.** Audited all `_shortcodes/`. Shortcodes with asymmetric or absent vertical margin updated to `hx:my-6` so they all sit at 1.5rem from the surrounding content top *and* bottom:
+  - [layouts/_partials/shortcodes/cards.html](layouts/_partials/shortcodes/cards.html): `hx:mt-4` → `hx:my-6`
+  - [layouts/_partials/shortcodes/callout.html](layouts/_partials/shortcodes/callout.html): `hx:mt-6` → `hx:my-6`
+  - [layouts/_shortcodes/details.html](layouts/_shortcodes/details.html): `hx:mt-4` → `hx:my-6`
+  - [layouts/_shortcodes/mermaid.html](layouts/_shortcodes/mermaid.html): added `hx:my-6` to the `.mermaid` wrapper
+  - `accordion`, `alert`, `lead`: already `hx:my-6`, unchanged.
+- **Accordion item body padding.** [layouts/_shortcodes/accordionItem.html:31](layouts/_shortcodes/accordionItem.html#L31) — content `<div>` had `hx:px-4 hx:pb-4`, so when an item was expanded the body sat flush against the underside of the `summary` row. Added `hx:pt-2` (8 px) for a comfortable inset.
+- **Article footer order: pager → tags.** [layouts/single.html](layouts/single.html) — the prev/next pager block now renders directly after the related-articles grid, with the tag chips moved to the bottom of the article footer. Top margin on the chips block reduced from `hx:mt-10` to `hx:mt-6` since the pager already supplies its own `pt-8 border-t` separator above it.
+- **Footer copyright / powered-by sourced from `hugo.toml`.** [layouts/_partials/footer.html:6-13](layouts/_partials/footer.html#L6) — both strings now resolve in this order: `site.Params.copyright` / `site.Params.poweredBy` → `(T "copyright") / (T "poweredBy")` i18n key → hard-coded fallback. Previously only the i18n + fallback path existed, so personalising the footer required either a custom `i18n/<lang>.toml` or a layout override. [exampleSite/hugo.toml:115-116](exampleSite/hugo.toml#L115-L116) demonstrates the usage with a `poweredBy = "Powered by Hextra"` line alongside the existing `copyright`.
+
+### Verified
+
+- `cd exampleSite && hugo` builds 146 pages in ~7.2 s, 0 warnings.
+- Served CSS bundle (`/css/compiled/main.min.<hash>.css`) contains `border-bottom:0;padding-bottom:0` from `custom.css`, applied to the `.content :where(h2)` selector — H2 underlines visually removed.
+- `/shortcodes-test/` page rendered: `lead` (×2), `alert` (×1), `accordion` wrapper (×1) all carry `hx:my-6`; the `accordionItem` content `<div>` carries `hx:px-4 hx:pt-2 hx:pb-4`.
+- `/writeups/htb/hackthebox-airtouch/` rendered in this order: breadcrumb → `<h1>` → author block → article body → "Related Articles" grid → **prev/next pager** (line 1355, `border-t pt-8` separator + chevron link to Browsed) → **Tags:** chips (line 1365, 24 chip links). Pager precedes tags as requested.
+- Footer block on every page reads "© 2025 hextras" (from `[params] copyright`) and "Powered by Hextra" (from `[params] poweredBy`). Removing those keys falls through to the i18n default; setting them to a different string updates the footer on the next build with no template edit.
+
+---
+
 ## [0.4.0] — 2026-04-28
 
 Adds an article-footer block to `layouts/single.html`: breadcrumb-above-title with uniform spacing, a "Related Articles" card grid keyed off shared tags, opt-in tag chips, and a prev/next sibling pager. All four are togglable per page and globally.

@@ -20,3 +20,14 @@ html {
   }
 }
 
+/*
+  Override Hextra's default h2 underline.
+  The compiled Tailwind bundle (assets/css/compiled/main.css) ships with
+  `border-b pb-1` baked into the .content h2 rule. Source typography.css
+  has been updated, but consumers using the prebuilt bundle still see the
+  underline — so we strip it here too. custom.css loads after main.css.
+*/
+.content :where(h2):not(:where([class~=not-prose], [class~=not-prose] *)) {
+  border-bottom: 0;
+  padding-bottom: 0;
+}

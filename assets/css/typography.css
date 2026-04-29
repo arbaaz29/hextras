@@ -3,7 +3,7 @@
     @apply hx:mt-2 hx:text-4xl hx:font-bold hx:tracking-tight hx:text-slate-900 hx:dark:text-slate-100;
   }
   :where(h2):not(:where([class~=not-prose],[class~=not-prose] *)) {
-    @apply hx:font-semibold hx:tracking-tight hx:text-slate-900 hx:dark:text-slate-100 hx:mt-10 hx:border-b hx:pb-1 hx:text-3xl hx:border-neutral-200/70 hx:contrast-more:border-neutral-400 hx:dark:border-primary-100/10 hx:contrast-more:dark:border-neutral-400;
+    @apply hx:font-semibold hx:tracking-tight hx:text-slate-900 hx:dark:text-slate-100 hx:mt-10 hx:text-3xl;
   }
   :where(h3):not(:where([class~=not-prose],[class~=not-prose] *)) {
     @apply hx:font-semibold hx:tracking-tight hx:text-slate-900 hx:dark:text-slate-100 hx:mt-8 hx:text-2xl;

@@ -62,21 +62,21 @@
           {{ end }}
         {{ end }}
 
-        {{/* ---- Tags toggle ---- */}}
-        {{ $showTags := cond (isset .Params "showtags") .Params.showTags (site.Params.article.showTags | default false) }}
-        {{ if and $showTags .Params.tags }}
-          <div class="hx:mt-10 hx:flex hx:flex-wrap hx:items-center hx:gap-y-2">
-            <span class="hx:mr-2 hx:text-sm hx:font-medium hx:text-gray-700 hx:dark:text-gray-300">Tags:</span>
-            {{ partial "tags.html" (dict "context" .) }}
-          </div>
-        {{ end }}
-
         {{/* ---- Prev/next nav buttons (within section) ---- */}}
         {{ $showPager := cond (isset .Params "showpager") .Params.showPager (site.Params.article.showPager | default true) }}
         {{ if $showPager }}
-          <div class="hx:mt-10"></div>
+          <div class="hx:mt-12"></div>
           {{- .Store.Set "reversePagination" (.Params.reversePagination | default true) -}}
           {{- partial "components/pager.html" . -}}
+        {{ end }}
+
+        {{/* ---- Tags toggle (rendered after the pager) ---- */}}
+        {{ $showTags := cond (isset .Params "showtags") .Params.showTags (site.Params.article.showTags | default false) }}
+        {{ if and $showTags .Params.tags }}
+          <div class="hx:mt-6 hx:flex hx:flex-wrap hx:items-center hx:gap-y-2">
+            <span class="hx:mr-2 hx:text-sm hx:font-medium hx:text-gray-700 hx:dark:text-gray-300">Tags:</span>
+            {{ partial "tags.html" (dict "context" .) }}
+          </div>
         {{ end }}
 
         {{ if site.Params.article.showAuthorBottom | default false }}

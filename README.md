@@ -205,12 +205,12 @@ A live example lives in the example site at `exampleSite/content/writeups/` — 
 
 ## Article extras (breadcrumb · related · tags · pager)
 
-Every article rendered by [layouts/single.html](layouts/single.html) (the default for leaf pages outside `blog/` and `docs/`) now ships four extras around the body:
+Every article rendered by [layouts/single.html](layouts/single.html) (the default for leaf pages outside `blog/` and `docs/`) now ships four extras around the body, in this order:
 
 1. **Breadcrumb above the title** — ancestor trail (e.g. `Writeups > HTB > AirTouch`), uniform `mt-4 mb-6` between it and the `<h1>`.
 2. **Related Articles card grid** — pages that share at least one tag with the current page, sorted newest-first, capped at `relatedLimit`.
-3. **Tag chips** — opt-in per article, renders the page's tags as clickable `#chip` links to `/tags/<slug>/`.
-4. **Prev/next pager** — links to neighbouring articles in the same section.
+3. **Prev/next pager** — links to neighbouring articles in the same section, separated from the body by a top border.
+4. **Tag chips** — opt-in per article, renders the page's tags as clickable `#chip` links to `/tags/<slug>/`. Sits below the pager so the navigation is the first thing readers reach when they finish the article.
 
 All four are togglable per page via front matter, with site-level defaults under `[params.article]`:
 
@@ -291,6 +291,29 @@ The block is implemented in [layouts/_partials/author-block.html](layouts/_parti
 - [layouts/docs/single.html](layouts/docs/single.html)
 
 To **disable globally**, set `[params.article] showAuthor = false` and `[params.homepage] showAuthor = false`. To **change the look**, edit `author-block.html`.
+
+---
+
+## Footer text (copyright · powered-by)
+
+Both strings on the right of the footer are configurable from your site's `hugo.toml` — no template override or i18n file required:
+
+```toml
+[params]
+  copyright = "© 2026 Your Name"     # left half of the footer
+  poweredBy = "Powered by Hextra"    # right half; the Hextra icon is appended automatically when the string contains the word "Hextra"
+```
+
+Resolution order in [layouts/_partials/footer.html](layouts/_partials/footer.html): `site.Params.copyright` / `site.Params.poweredBy` → `(T "copyright") / (T "poweredBy")` from `i18n/<lang>.toml` → hard-coded fallback. So you can drop both keys and supply a localised version through `i18n/` instead, or leave them out entirely and accept the bundled default.
+
+Show/hide each block via the existing `[params.footer]` toggles:
+
+```toml
+[params.footer]
+  enable           = true
+  displayCopyright = true     # show the left string
+  displayPoweredBy = true     # show the right string
+```
 
 ---
 

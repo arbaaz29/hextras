@@ -113,6 +113,7 @@ buildFuture      = false
 [params]
   description = "Example site for the hextras theme."
   copyright   = "© 2025 hextras"
+  poweredBy   = "Powered by Hextra"
   dateFormat  = "02 January 2006"
 
   defaultAppearance        = "dark"          # light | dark

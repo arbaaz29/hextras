@@ -17,7 +17,7 @@
   data-accordion-item
   {{ if $isOpen }}open{{ end }}
 >
-  <summary class="hx:flex hx:w-full hx:cursor-pointer hx:items-center hx:justify-between hx:gap-4 hx:px-4 hx:py-3 hx:text-left hx:text-lg hx:font-semibold hx:text-neutral-900 hx:dark:text-neutral-100">
+  <summary class="hx:flex hx:w-full hx:cursor-pointer hx:items-center hx:justify-between hx:gap-4 hx:p-4 hx:text-left hx:text-lg hx:font-semibold hx:text-neutral-900 hx:dark:text-neutral-100">
     <span class="hx:flex hx:items-center hx:gap-4">
       {{ with $icon }}
         {{ partial "icon.html" . }}
@@ -28,7 +28,7 @@
       {{ partial "icon.html" "chevron-down" }}
     </span>
   </summary>
-<div class="hx:px-4 hx:pb-4 hx:text-neutral-700 hx:dark:text-neutral-300{{ if $align }} hx:text-{{ $align }}{{ end }}">
+<div class="hx:p-4 hx:text-neutral-700 hx:dark:text-neutral-300{{ if $align }} hx:text-{{ $align }}{{ end }}">
     {{ if $md }}
       {{- .Inner | markdownify -}}
     {{ else }}
