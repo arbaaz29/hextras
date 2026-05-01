@@ -19,13 +19,14 @@
         {{ if and $showRelated .Params.tags }}
           {{ $current := . }}
           {{ $relatedLimit := site.Params.article.relatedLimit | default 3 }}
+          {{ $candidates := (where .Site.RegularPages "Permalink" "ne" $current.Permalink).ByDate.Reverse }}
           {{ $related := slice }}
-          {{ range where .Site.RegularPages "Permalink" "ne" $current.Permalink }}
+          {{ range $candidates }}
             {{ if intersect .Params.tags $current.Params.tags }}
               {{ $related = $related | append . }}
             {{ end }}
           {{ end }}
-          {{ $related = first $relatedLimit ($related.ByDate.Reverse) }}
+          {{ $related = first $relatedLimit $related }}
           {{ if $related }}
             <div class="hx:mt-12">
               <h2 class="hx:text-xl hx:font-semibold hx:mb-4 hx:text-slate-900 hx:dark:text-slate-100">Related Articles</h2>
